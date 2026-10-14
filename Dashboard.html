@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>DataJJobX</title>
+<style>body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;color:#334155;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}</style>
+</head>
+<body>
+<div id="msg">🚀 DataJJobX 접속 중...</div>
+<script>
+(async function () {
+  var HOST = 'http://211.231.133.103';
+  var PAGE = HOST + ':1880/api/datajjobx';
+  var API  = HOST + ':7600';
+  var UID = 'lsuser', PWD = 'lsuser12';
+  var PROJECT = 'SeBangBattery';
+
+  try {
+    var html = await (await fetch(PAGE, { cache: 'no-store' })).text();
+
+    // file:// 에서 실행되므로 위치 기반 주소를 고정값으로 치환
+    html = html.split("window.location.protocol + '//' + window.location.hostname + ':7600'").join("'" + API + "'");
+    html = html.split("window.location.pathname").join("'" + PAGE + "'");
+
+    // 자동 로그인
+    var auto = "<script>(function(){var n=0,t=setInterval(function(){" +
+      "var u=document.getElementById('userInput'),p=document.getElementById('pwdInput');" +
+      "if(u&&p&&window.handleLogin){clearInterval(t);u.value='" + UID + "';p.value='" + PWD + "';window.handleLogin();}" +
+      "else if(++n>50)clearInterval(t);},100);})();<\/script>";
+
+    // 로그인 후 프로젝트 자동 선택
+    auto += "<script>(function(){var n=0,t=setInterval(function(){" +
+      "var s=document.getElementById('projectSelect');if(!s)return;" +
+      "var o=Array.prototype.find.call(s.options,function(x){return x.getAttribute('data-name')==='" + PROJECT + "';});" +
+      "if(o){clearInterval(t);s.value=o.value;window.onProjectChange();}" +
+      "else if(++n>300)clearInterval(t);},200);})();<\/script>";
+
+    var i = html.lastIndexOf('</body>');
+    html = i >= 0 ? html.slice(0, i) + auto + html.slice(i) : html + auto;
+
+    document.open();
+    document.write(html);
+    document.close();
+  } catch (e) {
+    document.getElementById('msg').innerHTML = '접속 실패: ' + e.message +
+      '<br><a href="' + PAGE + '">직접 열기</a>';
+  }
+})();
+</script>
+</body>
+</html>
